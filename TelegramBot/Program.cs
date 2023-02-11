@@ -9,29 +9,64 @@ using ProglibIO;
 using HeadhunterClientAPI;
 using static HeadhunterClientAPI.HeadhunterClient;
 using System.Collections.Concurrent;
+using AngleSharp.Io;
 
+//Clients and settings
 var proglibClient = new ProglibIOClient();
 var hhClient = new HeadhunterClient();
-var botClient = new TelegramBotClient("5957164720:AAEd0R7qVOmfqYPEQRym1ReJubt_6YjuoGM");
+var botClient = new TelegramBotClient("5957164720:AAEd0R7qVOmfqYPEQRym1ReJubt_6YjuoGM"); //Input your bot token
 var userId = "5854103005"; //To Get Your userId type "/start" to "@RawDataBot" on Telegram
-
 using CancellationTokenSource cts = new();
 
-// StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
+//Check if the commands are present
+var cmdsCheck = await botClient.GetMyCommandsAsync();
+if(cmdsCheck.Length> 0)
+{
+    Console.WriteLine("Commands Exist!");
+}
+else //Make the commands
+{
+    BotCommand[] cmds = new BotCommand[3];
+    BotCommand cmd1 = new BotCommand();
+    BotCommand cmd2 = new BotCommand();
+    BotCommand cmd3 = new BotCommand();
+
+    cmd1.Command = "vacancies";
+    cmd2.Command = "search_employers";
+    cmd3.Command = "help";
+
+    cmd1.Description = "Gives you a list of all available vacancies.";
+    cmd2.Description = "Gives you a list of all available employers.";
+    cmd3.Description = "Gives you a list of all the commands.";
+
+    cmds[0] = cmd1;
+    cmds[1] = cmd2;
+    cmds[2] = cmd3; 
+
+    await botClient.SetMyCommandsAsync(cmds);
+    Console.WriteLine("Commands Created! Please Reopen The Chat!");
+}
+
+//StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
 ReceiverOptions receiverOptions = new()
 {
     AllowedUpdates = Array.Empty<UpdateType>() // receive all update types
 };
 
+//Checks
 if(userId.Length == 0)
 {
-    Console.WriteLine("Please input a user id:");
+    Console.Write("Please input a user id:");
     userId = Console.ReadLine();
 }
-//Send the message to introduce yourself
+//Send the message to introduce yourself (If no userid is found this step is skipped)
 if (userId.Length > 9)
 {
     var welcomeMsg = await botClient.SendTextMessageAsync(userId, "Hello! My name is Billy Bob Johnson! What is yours?");
+}
+else if(userId.Length < 0) //Skip if no userID
+{
+    Console.WriteLine("Introduction Skipped Because No Valid UserId Was Inserted!");
 }
 
 //Start Receiving
@@ -41,15 +76,14 @@ botClient.StartReceiving(
     receiverOptions: receiverOptions,
     cancellationToken: cts.Token
 );
-
+//Start Listening
 var me = await botClient.GetMeAsync();
-
 Console.WriteLine($"Start listening for @{me.Username} , {me.Id}");
 Console.ReadLine();
-
 // Send cancellation request to stop bot
 cts.Cancel();
 
+//Responding To Messages Task
 async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
     // Only process Message updates: https://core.telegram.org/bots/api#message
@@ -59,9 +93,9 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
     if (message.Text is not { } messageText)
         return;
     var chatId = message.Chat.Id;
-    Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+    Console.WriteLine($"Received a '{messageText}' message in chat {chatId}."); //Notification In Console
 
-    if (messageText == "/help")
+    if (messageText == "/help") //Help Command
     {
         var commands = await botClient.GetMyCommandsAsync();
         var commandlist = string.Join("\n", commands.Select(x => $"/{x.Command} - {x.Description}"));
@@ -70,7 +104,7 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         text: commandlist,
         cancellationToken: cancellationToken);
     }
-    else if (messageText=="/vacancies")
+    else if (messageText=="/vacancies") //Vacancies Command
     {
         int totalPages = await ProglibIOClient.GetTotalPagesAsync();
         int count = 0;
@@ -100,7 +134,7 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         cancellationToken: cancellationToken);
 
     }
-    else if(messageText == "/search_employers")
+    else if(messageText == "/search_employers") //1st Step for search_employers command
     {
         BoolVariables.Searching = true;
         Message answerMessage = await botClient.SendTextMessageAsync(
@@ -109,14 +143,14 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         cancellationToken: cancellationToken);
 
     }
-    else if(BoolVariables.Searching == true)
+    else if(BoolVariables.Searching == true) //2nd Step for search_employers command
     {
         
-        if (messageText.Length > 0)
+        if (messageText.Length > 0) //checks
         {
             var employers = await HeadhunterClient.SearchEmployers(messageText);
 
-            if(employers.Items.Length == 0)
+            if(employers.Items.Length == 0) //No Results
             {
                 Message noEmployersMessage = await botClient.SendTextMessageAsync(
                 chatId: chatId,
@@ -124,10 +158,10 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
                 cancellationToken: cancellationToken);
             }
 
-            if (employers.Items.Length > 0)
+            if (employers.Items.Length > 0) //checks
             {
 
-                if (employers.Items.Length < 10)
+                if (employers.Items.Length < 10) //If Small result
                 {
                     Message bigMessage = await botClient.SendTextMessageAsync(
                     chatId: chatId,
@@ -135,9 +169,9 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
                     cancellationToken: cancellationToken);
 
                 }
-                else
+                else //If Big Result
                 {
-                    int loopCount = 0;
+                    int loopCount = 0; //Ammount of times the loop is ran
                     if (employers.Items.Length % 10 == 0)
                     {
                         loopCount = employers.Items.Length / 10;
@@ -176,14 +210,14 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
             }
 
         }
-        else if (messageText.Length <= 0)
+        else if (messageText.Length <= 0) //No Search Text Check
         {
             Message loopMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "No Search Term Detected! Try Again Later!",
             cancellationToken: cancellationToken);
         }
-        else
+        else //Any other error
         {
             Message loopMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
@@ -193,7 +227,7 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
 
         BoolVariables.Searching = false;
     }
-    else if (BoolVariables.Answered == false)
+    else if (BoolVariables.Answered == false) //Name Repeat
     {
         BoolVariables.Answered = true;
         //Echo received Name
@@ -207,7 +241,7 @@ async static Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
 }
 
 
-
+//Exception console writer
 Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
 {
     var ErrorMessage = exception switch
@@ -221,7 +255,8 @@ Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, 
     return Task.CompletedTask;
 }
 
-public class BoolVariables
+
+public class BoolVariables //Class containing some parameters
 {
     public static bool Answered = false;
     public static bool Searching = false;
