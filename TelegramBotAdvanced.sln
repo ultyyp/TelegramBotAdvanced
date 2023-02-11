@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramBot", "TelegramBot\TelegramBot.csproj", "{EEF5992B-BDC3-44DA-9EFD-EC1198FE3F4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProglibIO", "ProglibIO\ProglibIO.csproj", "{ACD622E7-E8B4-4A36-AA06-493F4303C2D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadhunterClientAPI", "HeadhunterClientAPI\HeadhunterClientAPI.csproj", "{D427331B-6CEF-40E3-B6D5-03B37A1C5BA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEF5992B-BDC3-44DA-9EFD-EC1198FE3F4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEF5992B-BDC3-44DA-9EFD-EC1198FE3F4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEF5992B-BDC3-44DA-9EFD-EC1198FE3F4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEF5992B-BDC3-44DA-9EFD-EC1198FE3F4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACD622E7-E8B4-4A36-AA06-493F4303C2D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACD622E7-E8B4-4A36-AA06-493F4303C2D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACD622E7-E8B4-4A36-AA06-493F4303C2D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACD622E7-E8B4-4A36-AA06-493F4303C2D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D427331B-6CEF-40E3-B6D5-03B37A1C5BA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D427331B-6CEF-40E3-B6D5-03B37A1C5BA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D427331B-6CEF-40E3-B6D5-03B37A1C5BA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D427331B-6CEF-40E3-B6D5-03B37A1C5BA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5157EBF6-AADF-4D8F-8874-85DD163E6EC4}
+	EndGlobalSection
+EndGlobal
