@@ -14,8 +14,8 @@ using AngleSharp.Io;
 //Clients and settings
 var proglibClient = new ProglibIOClient();
 var hhClient = new HeadhunterClient();
-var botClient = new TelegramBotClient("5957164720:AAEd0R7qVOmfqYPEQRym1ReJubt_6YjuoGM"); //Input your bot token
-var userId = "5854103005"; //To Get Your userId type "/start" to "@RawDataBot" on Telegram
+var botClient = new TelegramBotClient(""); //Input your bot token
+var userId = ""; //To Get Your userId type "/start" to "@RawDataBot" on Telegram
 using CancellationTokenSource cts = new();
 
 //Check if the commands are present
