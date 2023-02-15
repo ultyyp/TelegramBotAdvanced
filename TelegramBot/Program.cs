@@ -541,6 +541,7 @@ internal class BotRequest
 {
     public DateTime RequestTime { get; set; }
 }
+
 internal class UpdateMsgType
 {
     public MsgType MsgType { get; set; }
