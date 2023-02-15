@@ -139,7 +139,6 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
                 }
             case "/help":
                 {
-
                     var commands = await botClient.GetMyCommandsAsync();
                     var commandlist = string.Join("\n", commands.Select(x => $"/{x.Command} - {x.Description}"));
                     await SendMsg(chatId, commandlist, cancellationToken);
@@ -152,14 +151,12 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
                 }
             case "/search_vacancies":
                 {
-
                     SetState(chatId, State.SearchVacancies);
                     await SendMsg(chatId, "Input Search:", cancellationToken);
                     break;
                 }
             case "/search_employers":
                 {
-
                     SetState(chatId, State.SearchEmployers);
                     await SendMsg(chatId, "Input Search:", cancellationToken);
                     break;
