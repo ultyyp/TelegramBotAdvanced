@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,6 +150,76 @@ namespace ProglibIO
             return vacancies;
         }
 
+        public static async Task<ConcurrentBag<Vacancy>> GetVacanciesByURLAndNameAsync(string url, string searchName)
+        {
+            ConcurrentBag<Vacancy> vacancies = new ConcurrentBag<Vacancy>();
+
+            var names = await ProglibIOClient.GetVacancyNamesAsync(url);
+            var urls = await ProglibIOClient.GetVacancyURLSAsync(url);
+            var dates = await ProglibIOClient.GetPublishingDatesAsync(url);
+
+            var task = Task.Run(() => {
+                for (int i = 0; i < names.Count; i++)
+                {
+                    var vacancy = ProglibIOClient.NewVacancy();
+                    vacancy.VacancyName = names[i];
+                    vacancy.VacancyURL = urls[i];
+                    vacancy.PublishingDate = dates[i];
+
+                    if(vacancy.VacancyName.Contains(searchName.ToUpper()) || vacancy.VacancyName.Contains(searchName.ToLower()))
+                    {
+                        vacancies.Add(vacancy);
+                    }
+
+                };
+
+            });
+
+            await task;
+            return vacancies;
+        }
+
+        public static async Task<List<Vacancy>> GetVacanciesListByURLAsync(string url)
+        {
+            List<Vacancy> vacancies = new List<Vacancy>();    
+
+            var names = await ProglibIOClient.GetVacancyNamesAsync(url);
+            var urls = await ProglibIOClient.GetVacancyURLSAsync(url);
+            var dates = await ProglibIOClient.GetPublishingDatesAsync(url);
+            for (int i = 0; i < names.Count; i++)
+            {
+                    var vacancy = ProglibIOClient.NewVacancy();
+                    vacancy.VacancyName = names[i];
+                    vacancy.VacancyURL = urls[i];
+                    vacancy.PublishingDate = dates[i];
+
+                    vacancies.Add(vacancy);
+            };
+            return vacancies;
+        }
+
+        public static async Task<List<Vacancy>> GetVacanciesListByURLAndNameAsync(string url, string searchName)
+        {
+            List<Vacancy> vacancies = new List<Vacancy>();
+
+            var names = await ProglibIOClient.GetVacancyNamesAsync(url);
+            var urls = await ProglibIOClient.GetVacancyURLSAsync(url);
+            var dates = await ProglibIOClient.GetPublishingDatesAsync(url);
+            for (int i = 0; i < names.Count; i++)
+            {
+                var vacancy = ProglibIOClient.NewVacancy();
+                vacancy.VacancyName = names[i];
+                vacancy.VacancyURL = urls[i];
+                vacancy.PublishingDate = dates[i];
+
+                if(vacancy.VacancyName.Contains(searchName.ToUpper()) || vacancy.VacancyName.Contains(searchName.ToLower()))
+                {
+                    vacancies.Add(vacancy);
+                }
+            };
+            return vacancies;
+        }
+
         public static async Task<ConcurrentBag<Vacancy>> GetVacanciesFromAllPagesAsync()
         {
             int totalPages = await ProglibIOClient.GetTotalPagesAsync();
@@ -170,6 +240,34 @@ namespace ProglibIO
             await Parallel.ForEachAsync(urls, options, async (currentUrl, token) =>
             {
                 ConcurrentBag<Vacancy> vacancies = await ProglibIOClient.GetVacanciesByURLAsync(currentUrl);
+                Parallel.ForEach(vacancies, vac => {
+                    finalBag.Add(vac);
+                });
+            });
+
+            return finalBag;
+        }
+
+        public static async Task<ConcurrentBag<Vacancy>> GetVacanciesFromAllPagesByNameAsync(string searchName)
+        {
+            int totalPages = await ProglibIOClient.GetTotalPagesAsync();
+            List<string> urls = new List<string>();
+            ConcurrentBag<Vacancy> finalBag = new ConcurrentBag<Vacancy>();
+
+            await Task.Run(() => {
+                for (int i = 1; i <= totalPages; i++)
+                {
+                    urls.Add("https://proglib.io/vacancies/all?workType=all&workPlace=all&experience=&salaryFrom=&page=" + i.ToString());
+                }
+            });
+
+            var options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = 50;
+            var token = options.CancellationToken;
+
+            await Parallel.ForEachAsync(urls, options, async (currentUrl, token) =>
+            {
+                ConcurrentBag<Vacancy> vacancies = await ProglibIOClient.GetVacanciesByURLAndNameAsync(currentUrl, searchName);
                 Parallel.ForEach(vacancies, vac => {
                     finalBag.Add(vac);
                 });
