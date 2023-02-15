@@ -77,6 +77,7 @@ botClient.StartReceiving(
 var me = await botClient.GetMeAsync();
 Console.WriteLine($"Start listening for @{me.Username} , {me.Id}");
 Console.ReadLine();
+
 // Send cancellation request to stop bot
 cts.Cancel();
 
@@ -556,6 +557,7 @@ internal class BotRequest
 {
     public DateTime RequestTime { get; set; }
 }
+
 internal class UpdateMsgType
 {
     public MsgType MsgType { get; set; }
