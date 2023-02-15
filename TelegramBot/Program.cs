@@ -7,12 +7,10 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ProglibIO;
 using HeadhunterClientAPI;
-using static HeadhunterClientAPI.HeadhunterClient;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using OpenAI_API.Completions;
 using OpenAI_API.Models;
-using static System.Net.Mime.MediaTypeNames;
 using System.Diagnostics.Contracts;
 using System.Text.RegularExpressions;
 using AngleSharp.Text;
@@ -109,7 +107,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
             $"seconds!", 
         cancellationToken);
 
-        Console.WriteLine((DateTime.UtcNow - _clientStates[chatId].BotRequests[0].RequestTime).Minutes);
+        //Console.WriteLine((DateTime.UtcNow - _clientStates[chatId].BotRequests[0].RequestTime).Minutes);
         await Task.Delay(2500);
         return;
     }
@@ -180,24 +178,8 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
                     if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
                     else
                     {
-                        if (_clientStates.ContainsKey(chatId) == false)
-                        {
-                            await SendMsg(chatId, "ChatGPT: Hello! This is ChatGPT, Ask me anything! B)", cancellationToken);
-                            SetState(chatId, State.ChatGPT);
-                        }
-                        else if (_clientStates[chatId].State != State.ChatGPT)
-                        {
-                            await SendMsg(chatId, "ChatGPT: Hello! This is ChatGPT, Ask me anything! B)", cancellationToken);
-                            SetState(chatId, State.ChatGPT);
-                        }
-                        else if (_clientStates[chatId].State == State.ChatGPT)
-                        {
-                            await SendMsg(chatId, "ChatGPT: We are already talking B)", cancellationToken);
-                        }
-                        else
-                        {
-                            await SendMsg(chatId, "ChatGPT: We weren't even talking in the first place! B)", cancellationToken);
-                        }
+                        await SendMsg(chatId, "ChatGPT: Hello! This is ChatGPT, Ask me anything! B)", cancellationToken);
+                        SetState(chatId, State.ChatGPT);
                     }
                     break;
                 }
