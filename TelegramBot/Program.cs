@@ -77,7 +77,6 @@ botClient.StartReceiving(
 var me = await botClient.GetMeAsync();
 Console.WriteLine($"Start listening for @{me.Username} , {me.Id}");
 Console.ReadLine();
-
 // Send cancellation request to stop bot
 cts.Cancel();
 
@@ -120,68 +119,56 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     if (_updateTypes[chatId].MsgType == MsgType.Command)
     {
         messageText = messageText.ToLower(); //Make sure the syntax is right
+        if(messageText!="/stopchatgpt") //check if another command is running
+        {
+            if (_clientStates[chatId].State != State.None) 
+            { 
+                await WarnToFinish(chatId, cancellationToken);
+                return;
+            }
+        }
+
         switch (messageText)
         {
 
             case "/start":
                 {
-                    if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
-                    else
-                    {
-                        SetState(chatId, State.Start);
-                        await SendMsg(chatId, "Hello! My Name is GptTopBot! What is yours?", cancellationToken);
-                    }
+                    SetState(chatId, State.Start);
+                    await SendMsg(chatId, "Hello! My Name is GptTopBot! What is yours?", cancellationToken);
                     break;
                 }
             case "/help":
                 {
-                    if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
-                    else
-                    {
-                        var commands = await botClient.GetMyCommandsAsync();
-                        var commandlist = string.Join("\n", commands.Select(x => $"/{x.Command} - {x.Description}"));
-                        await SendMsg(chatId, commandlist, cancellationToken);
-                    }
+
+                    var commands = await botClient.GetMyCommandsAsync();
+                    var commandlist = string.Join("\n", commands.Select(x => $"/{x.Command} - {x.Description}"));
+                    await SendMsg(chatId, commandlist, cancellationToken);
                     break;
                 }
             case "/vacancies":
                 {
-                    if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
-                    else
-                    {
-                        await SendVacancies(chatId, cancellationToken);
-                    }
+                    await SendVacancies(chatId, cancellationToken);
                     break;
                 }
             case "/search_vacancies":
                 {
-                    if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
-                    else
-                    {
-                        SetState(chatId, State.SearchVacancies);
-                        await SendMsg(chatId, "Input Search:", cancellationToken);
-                    }
+
+                    SetState(chatId, State.SearchVacancies);
+                    await SendMsg(chatId, "Input Search:", cancellationToken);
                     break;
                 }
             case "/search_employers":
                 {
-                    if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
-                    else
-                    {
-                        SetState(chatId, State.SearchEmployers);
-                        await SendMsg(chatId, "Input Search:", cancellationToken);
-                    }
+
+                    SetState(chatId, State.SearchEmployers);
+                    await SendMsg(chatId, "Input Search:", cancellationToken);
                     break;
 
                 }
             case "/startchatgpt":
                 {
-                    if (_clientStates[chatId].State != State.None) { await WarnToFinish(chatId, cancellationToken); }
-                    else
-                    {
-                        await SendMsg(chatId, "ChatGPT: Hello! This is ChatGPT, Ask me anything! B)", cancellationToken);
-                        SetState(chatId, State.ChatGPT);
-                    }
+                    await SendMsg(chatId, "ChatGPT: Hello! This is ChatGPT, Ask me anything! B)", cancellationToken);
+                    SetState(chatId, State.ChatGPT);
                     break;
                 }
             case "/stopchatgpt":
@@ -557,7 +544,6 @@ internal class BotRequest
 {
     public DateTime RequestTime { get; set; }
 }
-
 internal class UpdateMsgType
 {
     public MsgType MsgType { get; set; }
